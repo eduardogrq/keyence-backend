@@ -63,8 +63,8 @@ exports.getUser = async (req, res) => {
         const { userId } = req.params
         const user = await User.findById(userId)
 
-        if(!user){
-            return res.status(404).json({ message: 'User not found'})
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' })
         }
 
         res.status(200).json(user)
@@ -95,17 +95,38 @@ exports.updateUser = async (req, res) => {
         }
 
         const update = {}
-        if(userId) update.userId = userId
-        if(userName) update.userName = userName
-        if(date) update.date = date
-        if(punchIn) update.punchIn = punchIn
-        if(punchOut) update.punchOut = punchOut
+        if (userId) update.userId = userId
+        if (userName) update.userName = userName
+        if (date) update.date = date
+        if (punchIn) update.punchIn = punchIn
+        if (punchOut) update.punchOut = punchOut
 
-        const userUpdated = await User.findByIdAndUpdate(objectId, update, {new: true} )
+        const userUpdated = await User.findByIdAndUpdate(objectId, update, { new: true })
 
         res.json(userUpdated);
     } catch (err) {
         // conditional to check if is not a valid format Id in mongoDB
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+        res.status(500).json({ message: err.message });
+    }
+}
+
+// Function to delete a user registry
+exports.deleteUser = async (req, res) => {
+    try {
+        const objectId = req.params.userId
+        const deletedUser = await User.deleteOne({ _id: objectId })
+
+        if (deletedUser.deletedCount === 0) {
+            res.status(404).json({ message: 'User not found' })
+        }
+
+        res.status(204).send()
+
+    } catch (err) {
+
         if (err.name === 'CastError' && err.kind === 'ObjectId') {
             return res.status(400).json({ message: 'Invalid user ID' });
         }
