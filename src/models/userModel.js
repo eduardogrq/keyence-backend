@@ -1,14 +1,23 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    name: { 
+    userId: { 
+        type: String,
+        required: true
+    },
+    userName: { 
         type: String,
         required: true 
     },
-    age: { 
-        type: Number,
-        required: true 
+    date: { 
+        type: Date,
     },
+    punchIn: { 
+        type: Date
+    },
+    punchOut: { 
+        type: Date
+    }
 });
 
 const User = mongoose.model('users', userSchema);
