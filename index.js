@@ -2,10 +2,13 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
-const User = require('./models/Users')
+const User = require('./src/models/Users')
+const XLSX = require('xlsx');
 
 app.use(express.json())
 app.use(cors());
+app.use(express.static('assets'));
+
 
 const port = 3001
 
@@ -18,6 +21,13 @@ app.get('/users', async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+});
+
+app.post('/excel', (req, res) => {
+    const workbook = XLSX.readFile('./assets/data.xlsx');
+    const sheet_name = workbook.SheetNames[0];
+    const sheet_data = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name]);
+    res.json(sheet_data);
 });
 
 app.listen(port, () => {
