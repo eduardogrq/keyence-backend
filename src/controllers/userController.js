@@ -1,5 +1,4 @@
-const XLSX = require('xlsx');
-const { findByIdAndUpdate } = require('../models/userModel');
+const XLSX = require('xlsx');;
 const User = require('../models/userModel')
 
 // function to get all users data
