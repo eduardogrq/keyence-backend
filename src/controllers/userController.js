@@ -1,4 +1,5 @@
 const XLSX = require('xlsx');
+const { findByIdAndUpdate } = require('../models/userModel');
 const User = require('../models/userModel')
 
 // function to get all users data
@@ -80,15 +81,34 @@ exports.getUser = async (req, res) => {
 // Function to update a user registry
 exports.updateUser = async (req, res) => {
     try {
-        const userId = req.params.userId
-        const user = await User.findById(userId)
-        if(!user){
-            res.status(404).json({ message: 'User not found'})
+        const objectId = req.params.userId
+        const { userId, userName, date, punchIn, punchOut } = req.body
+
+        // conditional to check required fields
+        if (!userId || !userName || !date) {
+            return res.status(400).json({ message: 'Missing required fields' })
         }
 
-        res.json(user)
+        // conditional to check type of fields
+        if (typeof userId !== 'string' || typeof userName !== 'string') {
+            return res.status(400).json({ message: 'Invalid field type' })
+        }
 
+        const update = {}
+        if(userId) update.userId = userId
+        if(userName) update.userName = userName
+        if(date) update.date = date
+        if(punchIn) update.punchIn = punchIn
+        if(punchOut) update.punchOut = punchOut
+
+        const userUpdated = await User.findByIdAndUpdate(objectId, update, {new: true} )
+
+        res.json(userUpdated);
     } catch (err) {
-        res.status(500).json({error: err.message})
+        // conditional to check if is not a valid format Id in mongoDB
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+        res.status(500).json({ message: err.message });
     }
 }
