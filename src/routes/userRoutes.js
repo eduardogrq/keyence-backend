@@ -5,6 +5,8 @@ const userController = require('../controllers/userController')
 
 router.get('/', userController.getUsers)
 router.post('/createUsers', userController.createUsers)
+router.put('/:userId', userController.updateUser)
+router.get('/:userId', userController.getUser)
 router.post('/uploadExcel', userController.uploadExcelData)
 
 module.exports = router;

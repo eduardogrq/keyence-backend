@@ -5,7 +5,7 @@ const User = require('../models/userModel')
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find();
-        res.json(users);
+        res.status(200).json(users);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -29,15 +29,16 @@ exports.uploadExcelData = async (req, res) => {
             };
         });
 
-        res.json(newData);
+        res.status(200).json(newData);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 }
 
+// function to create users
 exports.createUsers = async (req, res) => {
 
-    const userObjects = req.body 
+    const userObjects = req.body
     try {
         for (let userObj of userObjects) {
             const newUser = new User({
@@ -49,8 +50,45 @@ exports.createUsers = async (req, res) => {
             });
             await newUser.save(); // save document in DB
         }
-        res.json('Users created successfully!');
+        res.status(200).json('Users created successfully!');
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+}
+
+// function to get one only user information
+exports.getUser = async (req, res) => {
+    try {
+        const { userId } = req.params
+        const user = await User.findById(userId)
+
+        if(!user){
+            return res.status(404).json({ message: 'User not found'})
+        }
+
+        res.status(200).json(user)
+
+    } catch (err) {
+        // conditional to check if is not a valid format Id in mongoDB
+        if (err.name === 'CastError' && err.kind === 'ObjectId') {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+        res.status(500).json({ message: err.message });
+    }
+}
+
+// Function to update a user registry
+exports.updateUser = async (req, res) => {
+    try {
+        const userId = req.params.userId
+        const user = await User.findById(userId)
+        if(!user){
+            res.status(404).json({ message: 'User not found'})
+        }
+
+        res.json(user)
+
+    } catch (err) {
+        res.status(500).json({error: err.message})
     }
 }
