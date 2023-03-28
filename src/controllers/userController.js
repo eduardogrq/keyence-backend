@@ -14,7 +14,8 @@ exports.getUsers = async (req, res) => {
 // Function to upload excel data
 exports.uploadExcelData = async (req, res) => {
     try {
-        const fileName = req.body.pathname;
+        const {url} = req.body
+        const fileName = url
         const workbook = XLSX.readFile(fileName);
         const sheet_name = workbook.SheetNames[0];
         const sheet_data = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name]);
@@ -30,6 +31,7 @@ exports.uploadExcelData = async (req, res) => {
         });
 
         res.status(200).json(newData);
+        // res.status(200).json({success: true});
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
